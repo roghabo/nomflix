@@ -1,0 +1,12 @@
+{
+  "main.js": "/nomflix/static/js/main.8cf17dfc.chunk.js",
+  "main.js.map": "/nomflix/static/js/main.8cf17dfc.chunk.js.map",
+  "static/js/1.97602d06.chunk.js": "/nomflix/static/js/1.97602d06.chunk.js",
+  "static/js/1.97602d06.chunk.js.map": "/nomflix/static/js/1.97602d06.chunk.js.map",
+  "runtime~main.js": "/nomflix/static/js/runtime~main.621cdbff.js",
+  "runtime~main.js.map": "/nomflix/static/js/runtime~main.621cdbff.js.map",
+  "static/media/noPosterSmall.png": "/nomflix/static/media/noPosterSmall.fee281b9.png",
+  "index.html": "/nomflix/index.html",
+  "precache-manifest.585ef257d109e1fb8be9cfc43d5f2c3a.js": "/nomflix/precache-manifest.585ef257d109e1fb8be9cfc43d5f2c3a.js",
+  "service-worker.js": "/nomflix/service-worker.js"
+}
