@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Helmet from "react-helmet";
-import Loader from "Components/Loader";
+import Loader from "../Components/Loader";
+import { moviesApi, tvApi } from "../api";
 
 const Container = styled.div`
   height: calc(100vh - 50px);
@@ -53,9 +53,19 @@ const Title = styled.h3`
 
 const ItemContainer = styled.div`
   margin: 20px 0;
+  position: relative;
 `;
 
 const Item = styled.span``;
+
+const ImdbLink = styled.a`
+  position: absolute;
+`;
+
+const Imdb = styled.img`
+  width: 40px;
+  height: 15px;
+`;
 
 const Divider = styled.span`
   margin: 0 10px;
@@ -68,8 +78,47 @@ const Overview = styled.p`
   width: 50%;
 `;
 
-const DetailPresenter = ({ result, loading, error }) =>
-  loading ? (
+export default function Detail(props) {
+  const {
+    location: { pathname },
+  } = props;
+
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isMovie, setIsMovie] = useState(pathname.includes("/movie/"));
+
+  const getDetail = async () => {
+    const {
+      match: {
+        params: { id },
+      },
+      history: { push },
+    } = props;
+    const parsedId = parseInt(id);
+    if (isNaN(parsedId)) {
+      return push("/");
+    }
+    let result = null;
+    try {
+      if (isMovie) {
+        ({ data: result } = await moviesApi.movieDetail(parsedId));
+      } else {
+        ({ data: result } = await tvApi.showDetail(parsedId));
+      }
+    } catch {
+      setError("Can't find anything.");
+    } finally {
+      setResult(result);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getDetail();
+  });
+
+  return loading ? (
     <>
       <Helmet>
         <title>Loading | Nomflix</title>
@@ -92,7 +141,7 @@ const DetailPresenter = ({ result, loading, error }) =>
           bgImage={
             result.poster_path
               ? `https://image.tmdb.org/t/p/original${result.poster_path}`
-              : require("../../assets/noPosterSmall.png")
+              : require("../assets/noPosterSmall.png")
           }
         />
         <Data>
@@ -114,24 +163,25 @@ const DetailPresenter = ({ result, loading, error }) =>
             <Divider>•</Divider>
             <Item>
               {result.genres &&
-                result.genres.map(
-                  (genre, index) =>
-                    index === result.genres.length - 1
-                      ? genre.name
-                      : `${genre.name} / `
+                result.genres.map((genre, index) =>
+                  index === result.genres.length - 1
+                    ? genre.name
+                    : `${genre.name} / `
                 )}
             </Item>
+            <Divider>•</Divider>
+            <ImdbLink
+              href={`https://www.imdb.com/title/${result.imdb_id}`}
+              target="_blank"
+            >
+              <Item>
+                <Imdb src={require("../assets/imdb.png")}></Imdb>
+              </Item>
+            </ImdbLink>
           </ItemContainer>
           <Overview>{result.overview}</Overview>
         </Data>
       </Content>
     </Container>
   );
-
-DetailPresenter.propTypes = {
-  result: PropTypes.object,
-  loading: PropTypes.bool.isRequired,
-  error: PropTypes.string,
-};
-
-export default DetailPresenter;
+}
