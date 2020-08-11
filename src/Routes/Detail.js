@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { Route, Link, withRouter, Switch } from "react-router-dom";
 import styled from "styled-components";
 import Helmet from "react-helmet";
 import Loader from "../Components/Loader";
 import { moviesApi, tvApi } from "../api";
+import Videos from "Routes/Videos";
+import Company from "Routes/Company";
+import Country from "Routes/Country";
 
 const Container = styled.div`
   height: calc(100vh - 50px);
@@ -100,7 +104,7 @@ const Season = styled.div`
 const SeasonImg = styled.div`
   width: 150px;
   height: 200px;
-  background-image: url(${(props) => props.bgImage});
+  background-image: url(${(props) => props.bgUrl});
   background-position: center center;
   background-size: cover;
   border-radius: 5px;
@@ -109,7 +113,26 @@ const SeasonImg = styled.div`
 
 const SeasonTitle = styled.span``;
 
-export default function Detail(props) {
+const InsideMenu = styled("div")`
+  margin: 20px 0px;
+`;
+
+const List = styled("ul")`
+  display: flex;
+`;
+
+const RouteItem = styled("li")`
+  margin-right: 20px;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 5px;
+  border-radius: 3px;
+  background-color: ${(props) =>
+    props.active ? "rgba(20, 20, 20, 1)" : "white"};
+  color: ${(props) => (props.active ? "white" : "rgba(20, 20, 20, 1)")};
+`;
+
+const Detail = (props) => {
   const {
     location: { pathname },
   } = props;
@@ -147,7 +170,7 @@ export default function Detail(props) {
 
   useEffect(() => {
     getDetail();
-  });
+  }, []);
 
   return loading ? (
     <>
@@ -189,7 +212,7 @@ export default function Detail(props) {
             </Item>
             <Divider>•</Divider>
             <Item>
-              {result.runtime ? result.runtime : result.episode_run_time[0]} min
+              {isMovie ? result.runtime : result.episode_run_time[0]} min
             </Item>
             <Divider>•</Divider>
             <Item>
@@ -217,6 +240,85 @@ export default function Detail(props) {
             )}
           </ItemContainer>
           <Overview>{result.overview}</Overview>
+          <InsideMenu>
+            <List>
+              {result.videos && result.videos.results.length > 0 ? (
+                <RouteItem
+                  active={
+                    isMovie
+                      ? pathname === `/movie/${result.id}/videos`
+                      : pathname === `/show/${result.id}/videos`
+                  }
+                >
+                  <Link
+                    to={
+                      isMovie
+                        ? `/movie/${result.id}/videos`
+                        : `/show/${result.id}/videos`
+                    }
+                  >
+                    Videos
+                  </Link>
+                </RouteItem>
+              ) : (
+                ""
+              )}
+
+              {result.production_companies &&
+              result.production_companies.length > 0 ? (
+                <RouteItem
+                  active={
+                    isMovie
+                      ? pathname === `/movie/${result.id}/company`
+                      : pathname === `/show/${result.id}/company`
+                  }
+                >
+                  <Link
+                    to={
+                      isMovie
+                        ? `/movie/${result.id}/company`
+                        : `/show/${result.id}/company`
+                    }
+                  >
+                    Production Companies
+                  </Link>
+                </RouteItem>
+              ) : (
+                ""
+              )}
+
+              {result.production_countries &&
+              result.production_countries.length > 0 ? (
+                <RouteItem
+                  active={
+                    isMovie
+                      ? pathname === `/movie/${result.id}/country`
+                      : pathname === `/show/${result.id}/country`
+                  }
+                >
+                  <Link
+                    to={
+                      isMovie
+                        ? `/movie/${result.id}/country`
+                        : `/show/${result.id}/country`
+                    }
+                  >
+                    Production Countries
+                  </Link>
+                </RouteItem>
+              ) : (
+                ""
+              )}
+            </List>
+          </InsideMenu>
+          <Switch>
+            <Route path="/movie/:id/videos" exact component={Videos} />
+            <Route path="/show/:id/videos" exact component={Videos} />
+            <Route path="/movie/:id/company" exact component={Company} />
+            <Route path="/show/:id/company" exact component={Company} />
+            <Route path="/movie/:id/country" exact component={Country} />
+            <Route path="/show/:id/country" exact component={Country} />
+          </Switch>
           {result.seasons ? (
             <>
               <H1>Seasons</H1>
@@ -224,7 +326,11 @@ export default function Detail(props) {
                 {result.seasons.map((season) => (
                   <Season>
                     <SeasonImg
-                      bgImage={`https://image.tmdb.org/t/p/original${season.poster_path}`}
+                      bgUrl={
+                        season.poster_path
+                          ? `https://image.tmdb.org/t/p/original${season.poster_path}`
+                          : require("../assets/noPosterSmall.png")
+                      }
                     ></SeasonImg>
                     <SeasonTitle>{season.name}</SeasonTitle>
                   </Season>
@@ -238,4 +344,6 @@ export default function Detail(props) {
       </Content>
     </Container>
   );
-}
+};
+
+export default withRouter(Detail);
