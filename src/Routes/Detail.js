@@ -45,6 +45,7 @@ const Cover = styled.div`
 const Data = styled.div`
   width: 70%;
   margin-left: 10px;
+  position: relative;
 `;
 
 const Title = styled.h3`
@@ -77,6 +78,36 @@ const Overview = styled.p`
   line-height: 1.5;
   width: 50%;
 `;
+
+const H1 = styled.h1`
+  font-size: 24px;
+  position: absolute;
+  bottom: 230px;
+`;
+
+const Seasons = styled.div`
+  position: absolute;
+  bottom: 0px;
+  display: flex;
+  width: 100%;
+  overflow: auto;
+`;
+
+const Season = styled.div`
+  padding-right: 20px;
+`;
+
+const SeasonImg = styled.div`
+  width: 150px;
+  height: 200px;
+  background-image: url(${(props) => props.bgImage});
+  background-position: center center;
+  background-size: cover;
+  border-radius: 5px;
+  margin-bottom: 10px;
+`;
+
+const SeasonTitle = styled.span``;
 
 export default function Detail(props) {
   const {
@@ -169,17 +200,40 @@ export default function Detail(props) {
                     : `${genre.name} / `
                 )}
             </Item>
-            <Divider>•</Divider>
-            <ImdbLink
-              href={`https://www.imdb.com/title/${result.imdb_id}`}
-              target="_blank"
-            >
-              <Item>
-                <Imdb src={require("../assets/imdb.png")}></Imdb>
-              </Item>
-            </ImdbLink>
+            {result.imdb_id ? (
+              <>
+                <Divider>•</Divider>
+                <ImdbLink
+                  href={`https://www.imdb.com/title/${result.imdb_id}`}
+                  target="_blank"
+                >
+                  <Item>
+                    <Imdb src={require("../assets/imdb.png")}></Imdb>
+                  </Item>
+                </ImdbLink>
+              </>
+            ) : (
+              ""
+            )}
           </ItemContainer>
           <Overview>{result.overview}</Overview>
+          {result.seasons ? (
+            <>
+              <H1>Seasons</H1>
+              <Seasons>
+                {result.seasons.map((season) => (
+                  <Season>
+                    <SeasonImg
+                      bgImage={`https://image.tmdb.org/t/p/original${season.poster_path}`}
+                    ></SeasonImg>
+                    <SeasonTitle>{season.name}</SeasonTitle>
+                  </Season>
+                ))}
+              </Seasons>
+            </>
+          ) : (
+            ""
+          )}
         </Data>
       </Content>
     </Container>
